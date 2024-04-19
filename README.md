@@ -8,3 +8,6 @@ Some parameters now use the same values for all nodes it refers to. Maybe we sho
 * In Schneider: D (turnover rate of the nutrients) is a single value common to all nutrient pools. 
 * In all models, interspecific competition is a scalar. 
  
+# Added models
+
+Two models were added to the source code (scr), namely Unscaled_nuts_plant and Unscaled_nuts_faci. The former only modeling plants competition for nutrients (without animals on top), with the possibility to add facilitation schemes to the plants. The latter is the UnScaled_nuts_plant model with animals feeding interactions on top of plants. In the case that the facilitation interaction matrix is 0 in Unscaled_nuts_faci, this model is equal to Unscaled_nuts. 
