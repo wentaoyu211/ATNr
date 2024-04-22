@@ -180,3 +180,92 @@ create_model_Unscaled <- function(
   model[["fw"]] <- fw
   return(model)
 }
+
+
+#' @title Initialize an ATN model, following Schneider et al. 2016, Nature Communication
+#'
+#' @param nb_s integer, number of total species.
+#' @param nb_b integer, number of basal species.
+#' @param nb_n integer, number of nutrients.
+#' @param BM float vector, body mass of species.
+#' @param fw binary adjacency matrix of the food web.
+#' @param faci facilitation matrix of primary producers ranging from 0 to 1, diagnol set to 0.
+#'
+#' @export
+#'
+#' @details A model is defined by the total number of species
+#' (\emph{nb_s}), the number of basal species (\emph{nb_b}),
+#' the number of nutrients (\emph{nb_n}), the faciliation matrix
+#' (\emph{faci}) describe facilitation scheme  among plants 
+#' the body masses (\emph{BM}) of species, and the adjacency 
+#' matrix (\emph{fw}) representing species interactions.
+#' Nutrients are not counted as species.
+#'
+#' @return An object of class \emph{ATN (Rcpp_parameters_prefs)}.
+#'
+create_model_Unscaled_nuts_faci <- function(
+    nb_s,
+    nb_b,
+    nb_n = 2,
+    BM,
+    fw
+) {
+  # check input is correct
+  if (any(c(nb_s, nb_b, nb_n) %% 1 != 0)) {
+    stop("nb_s, nb_b and nb_n must all be integers")
+  }
+  if (length(BM) != nb_s) {
+    stop("BM should have length equal to nb_s (", nb_s, ")")
+  }
+  if (dim(fw)[1] != dim(fw)[2]) {
+    stop("Food web matrix is not a square matrix")
+  }
+  if (nb_s != ncol(fw)) {
+    stop("Number of species and food web matrix do not match")
+  }
+  
+  model <- methods::new(Unscaled_nuts_faci, nb_s, nb_b, nb_n)
+  
+  # THIS WE CAN EVEN PUT IN THE CONSTRUCTOR, PERHAPS?
+  model[["BM"]] <- BM
+  model[["fw"]] <- fw
+  return(model)
+}
+
+
+#' @title Initialize an ATN model, following Schneider et al. 2016, Nature Communication
+#'
+#' @param nb_b integer, number of basal species.
+#' @param nb_n integer, number of nutrients.
+#' @param BM float vector, body mass of basal species.
+#' @param faci facilitation matrix of primary producers ranging from 0 to 1, diagnol set to 0.
+#'
+#' @export
+#'
+#' @details A model is defined by the total number of species
+#' (\emph{nb_s}), the number of basal species (\emph{nb_b}),
+#' the number of nutrients (\emph{nb_n}), the body masses
+#'  (\emph{BM}) of basal species, this model doesn't have consumers. 
+#' Nutrients are not counted as species.
+#'
+#' @return An object of class \emph{ATN (Rcpp_parameters_prefs)}.
+#'
+create_model_Unscaled_nuts_plant <- function(
+    nb_b,
+    nb_n = 2,
+    BM # biomass of the plants
+) {
+  # check input is correct
+  if (any(c( nb_b, nb_n) %% 1 != 0)) {
+    stop("nb_b and nb_n must all be integers")
+  }
+  if (length(BM) != nb_b) {
+    stop("BM should have length equal to nb_b")
+  }
+  
+  model <- methods::new(Unscaled_nuts_plant, nb_b, nb_n)
+  
+  # THIS WE CAN EVEN PUT IN THE CONSTRUCTOR, PERHAPS?
+  model[["BM"]] <- BM
+  return(model)
+}

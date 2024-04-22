@@ -24,7 +24,18 @@ run_checks <- function(model, verbose = TRUE) {
     })
     if (verbose) message("All checks successful")
   }
-  else if (class(model)[1] == "Rcpp_Unscaled_nuts") {
+    else if (class(model)[1] == "Rcpp_Unscaled_nuts_plant") {
+    with(model, {
+      if (any(dim(K) != c(nb_n, nb_b))) stop(" vector of plant half saturation densities ($K2) mispecified")
+      else if (length(r) != nb_b) stop(" vector of plant growth rate ($r) mispecified")
+      else if (length(BM) != nb_b) stop(" vector of body masses ($BM) mispecified")
+      else if (length(S) != nb_n) stop(" vector of maximal nutrient level ($S) mispecified")
+      else if (length(X) != nb_b) stop(" vector of metabolic rates ($X) mispecified")
+      else if (any(dim(V) != c(nb_n, nb_b))) stop(" matrix relative content in the plant species' biomass ($V) mispecified")
+    })
+    if (verbose) message("All checks successfull")
+  }
+  else if (class(model)[1] == "Rcpp_Unscaled_nuts" | class(model)[1] == "Rcpp_Unscaled_faci") {
     with(model, {
       if (any(dim(K) != c(nb_n, nb_b))) stop(" vector of plant half saturation densities ($K2) mispecified")
       else if (length(e) != nb_s) stop(" vector of assimilation efficiencies ($e) mispecified")

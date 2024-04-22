@@ -17,7 +17,9 @@ RcppExport SEXP _rcpp_module_boot_Scaled_loopsModule();
 RcppExport SEXP _rcpp_module_boot_UnscaledModule();
 RcppExport SEXP _rcpp_module_boot_Unscaled_loopsModule();
 RcppExport SEXP _rcpp_module_boot_Unscaled_nutsModule();
+RcppExport SEXP _rcpp_module_boot_Unscaled_nuts_faciModule();
 RcppExport SEXP _rcpp_module_boot_Unscaled_nuts_loopsModule();
+RcppExport SEXP _rcpp_module_boot_Unscaled_nuts_plantModule();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_ScaledModule", (DL_FUNC) &_rcpp_module_boot_ScaledModule, 0},
@@ -25,7 +27,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_UnscaledModule", (DL_FUNC) &_rcpp_module_boot_UnscaledModule, 0},
     {"_rcpp_module_boot_Unscaled_loopsModule", (DL_FUNC) &_rcpp_module_boot_Unscaled_loopsModule, 0},
     {"_rcpp_module_boot_Unscaled_nutsModule", (DL_FUNC) &_rcpp_module_boot_Unscaled_nutsModule, 0},
+    {"_rcpp_module_boot_Unscaled_nuts_faciModule", (DL_FUNC) &_rcpp_module_boot_Unscaled_nuts_faciModule, 0},
     {"_rcpp_module_boot_Unscaled_nuts_loopsModule", (DL_FUNC) &_rcpp_module_boot_Unscaled_nuts_loopsModule, 0},
+    {"_rcpp_module_boot_Unscaled_nuts_plantModule", (DL_FUNC) &_rcpp_module_boot_Unscaled_nuts_plantModule, 0},
     {NULL, NULL, 0}
 };
 

@@ -21,13 +21,13 @@ Initialise the default parametrisation for the scaled version of
   the ATN model as in Binzer et al. (2016), with updates from Gauzens et al. 2020
 }
 \examples{
- library(ATNr)
- set.seed(123)
- masses <- runif(20, 10, 100) #body mass of species
- L <- create_Lmatrix(masses, 10, Ropt = 10)
- L[L > 0] <- 1
- mod <- create_model_Unscaled(20, 10, masses, L)
- mod <- initialise_default_Unscaled(mod)
+library(ATNr)
+set.seed(123)
+masses <- runif(20, 10, 100) #body mass of species
+L <- create_Lmatrix(masses, 10, Ropt = 10)
+L[L > 0] <- 1
+mod <- create_model_Unscaled(20, 10, 3, masses, L)
+mod <- initialise_default_Unscaled(mod)
 }
 \references{
 Binzer, A., Guill, C., Rall, B. C. & Brose, U.

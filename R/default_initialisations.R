@@ -146,7 +146,7 @@ initialise_default_Unscaled_nuts <- function(
 #' @return An object of class \emph{ATN (Rcpp_Unscaled_nuts_faci)} with default
 #'   parameters as in Schneider et al. (2016).
 #'
-initialise_default_Unscaled_faci <- function(
+initialise_default_Unscaled_nuts_faci <- function(
   model,
   L.mat,
   temperature = 20
@@ -233,7 +233,7 @@ initialise_default_Unscaled_faci <- function(
 #' @return An object of class \emph{ATN (Rcpp_Unscaled_nuts_plant)} with default
 #'   parameters as in Schneider et al. (2016).
 #'
-initialise_default_Unscaled_plant <- function(
+initialise_default_Unscaled_nuts_plant <- function(
   model,
   temperature = 20
 ) {
