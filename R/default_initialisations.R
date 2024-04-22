@@ -37,6 +37,8 @@ create_matrix_parameter <- function(
   return(b0 * ((M * BM[, 1])^bprey * t(M * BM[, 1])^bpred) *
                exp(-E * (T0 - T.K) / (k * T.K * T0)))
 }
+
+
 #' @title Default model parameters as in Schneider et al. 2016
 #'
 #' @description Initialise the default parametrisation for the model for
@@ -130,6 +132,160 @@ initialise_default_Unscaled_nuts <- function(
   return(model)
 }
 
+
+#' @title Default model parameters as in Schneider et al. 2016 with option to manipulate facilitation
+#'
+#' @description Initialise the default parametrisation for the model for
+#'   Schneider et al. (2016).
+#' @param model an object of class \emph{ATN (Rcpp_Unscaled_nuts}.
+#' @param L.mat numeric matrix, probability of a consumer to attack and capture an encountered resource. See \code{\link{create_Lmatrix}}.
+#' @param temperature numeric, ambient temperature of the ecosystem in Celsius.
+#'
+#' @export
+#'
+#' @return An object of class \emph{ATN (Rcpp_Unscaled_nuts_faci)} with default
+#'   parameters as in Schneider et al. (2016).
+#'
+initialise_default_Unscaled_faci <- function(
+  model,
+  L.mat,
+  temperature = 20
+) {
+  utils::data("schneider", envir = environment())
+  schneider[["nb_s"]] <- model$nb_s
+  schneider[["nb_b"]] <- model$nb_b
+  schneider[["nb_n"]] <- model$nb_n
+  schneider[["BM"]] <- model$BM
+  schneider[["T.K"]] <- temperature + 273.15
+  # w parameter: how a predator splits its foraging time on the different
+  # species. by default a predator split its foraging time equally between all
+  # the prey sum of w values should be equal to 1 for a given predator.
+  model$ext <- 1e-6
+  w <- sweep(x = model$fw, MARGIN = 2, FUN = "/", colSums(model$fw))
+  model$w <- w[, (model$nb_b + 1):model$nb_s]
+
+  # Plant nutrient uptake efficiency
+  model$K <- with(schneider,
+                  matrix(stats::runif(nb_b * nb_n, nut_up_min, nut_up_max),
+                         nrow = nb_n, ncol = nb_b))
+
+  # turnover rate of the nutrients
+  model$D <- schneider$D
+
+  # maximal nutrient level
+  model$S <- with(schneider, stats::rnorm(nb_n, mu_nut, sd_nut))
+  
+  # neighbour biomass scaling exponent
+  model$theta <- 0.15
+  
+  # empty facilitation matrix, if faci matrix is 0 then the model is equivalent to Unscaled_nuts
+  model$faci <- matrix(0, nrow = model$nb_b, ncol = model$nb_b)
+
+  # growth rate of the basal species
+  model$r <- with(schneider, BM[1 : nb_b] ^ -0.25 * exp(-0.22 * (T0 - T.K) / (k * T.K * T0)))
+  # per gram metabolic rate
+  model$X <- with(schneider,
+                  c(rep(x_P, nb_b), rep(x_A, nb_s - nb_b)) *
+                    BM^-0.25 * exp(-0.69 * (T0 - T.K) / (k * T.K * T0)))
+
+  # species efficiencies
+  model$e <- with(schneider, c(rep(e_P, nb_b), rep(e_A, nb_s - nb_b)))
+  # species specific capture rate (encounter rate * predaion success)
+  model$b <- with(schneider, create_matrix_parameter(BM, b0, bprey, bpred, E.b, T.K, T0, k)) * L.mat
+  model$b <- model$b[, (model$nb_b + 1):model$nb_s]
+  # specific values for plants: BM^beta = 20
+  model$b[1:model$nb_b, ] <-  with(schneider,
+    t(replicate(model$nb_b, 20 * model$BM[(model$nb_b + 1):nrow(model$BM), 1]^bpred)) *
+      L.mat[1:model$nb_b, (model$nb_b + 1):model$nb_s]
+  )
+
+  # interference competition
+  model$c <- with(schneider, stats::rnorm(nb_s - nb_b, mu_c, sd_c) * exp(-0.65 * (T0 - T.K) / (k * T.K * T0)))
+  # handling time
+  model$h <- with(schneider, create_matrix_parameter(BM, h0, hprey, hpred, E.h, T.K, T0, k))
+  model$h <- model$h[, (model$nb_b + 1):model$nb_s]
+  # Hill exponent
+  model$q <- stats::rnorm(model$nb_s - model$nb_b, 1.5, 0.2)
+  # plant stoichiometry (relative content in  the nutrients) !!!!!!!!!! to update. here assume 2 nutrients only !!!!!!!
+  model$V <- with(schneider,
+                  matrix(stats::runif(nb_b * nb_n, 1, 2), nrow = nb_n, ncol = nb_b))
+  model$V <- sweep(x = model$V, MARGIN = 2, FUN = "/", colSums(model$V))
+  # growth rate of plant species !!!!!!!!!!! temperature independant right now !!!!!!!!!!!!!!!
+  model$r <- with(schneider, BM[1:nb_b]^-0.25)
+  # initialisation of the matrix of feeding rates.
+  # all values are 0 for now. Updated at each call of the ODEs estimations.
+  model$F <- with(schneider, matrix(0.0, nrow = nb_s, ncol = nb_s - nb_b))
+
+
+  return(model)
+}
+
+
+#' @title Default model parameters as in Schneider et al. 2016 but without consumers with option to manipulate facilitation
+#'
+#' @description Initialise the default parametrisation for the model for
+#'   Schneider et al. (2016).
+#' @param model an object of class \emph{ATN (Rcpp_Unscaled_nuts_plant}.
+#' @param temperature numeric, ambient temperature of the ecosystem in Celsius.
+#'
+#' @export
+#'
+#' @return An object of class \emph{ATN (Rcpp_Unscaled_nuts_plant)} with default
+#'   parameters as in Schneider et al. (2016).
+#'
+initialise_default_Unscaled_plant <- function(
+  model,
+  temperature = 20
+) {
+  utils::data("schneider", envir = environment())
+  schneider[["nb_b"]] <- model$nb_b
+  schneider[["nb_n"]] <- model$nb_n
+  schneider[["BM"]] <- model$BM
+  schneider[["T.K"]] <- temperature + 273.15
+  # w parameter: how a predator splits its foraging time on the different
+  # species. by default a predator split its foraging time equally between all
+  # the prey sum of w values should be equal to 1 for a given predator.
+  model$ext <- 1e-6
+
+  # Plant nutrient uptake efficiency
+  model$K <- with(schneider,
+                  matrix(stats::runif(nb_b * nb_n, nut_up_min, nut_up_max),
+                         nrow = nb_n, ncol = nb_b))
+
+  # turnover rate of the nutrients
+  model$D <- schneider$D
+
+  # maximal nutrient level
+  model$S <- with(schneider, stats::rnorm(nb_n, mu_nut, sd_nut))
+
+  # neighbour biomass scaling exponent
+  model$theta <- 0.15
+
+  # empty facilitation matrix, if faci matrix is 0 then the model is equivalent to Unscaled_nuts
+  model$faci <- matrix(0, nrow = model$nb_b, ncol = model$nb_b)
+
+  # growth rate of the basal species
+  model$r <- with(schneider, BM[1 : nb_b] ^ -0.25 * exp(-0.22 * (T0 - T.K) / (k * T.K * T0)))
+  # per gram metabolic rate
+  model$X <- with(schneider,
+                  c(rep(x_P, nb_b), rep(x_A, nb_s - nb_b)) *
+                    BM^-0.25 * exp(-0.69 * (T0 - T.K) / (k * T.K * T0)))
+
+  model$X <- c(rep(0.141, model$nb_b)) * model$BM^-0.25
+
+  # plant stoichiometry (relative content in  the nutrients) !!!!!!!!!! to update. here assume 2 nutrients only !!!!!!!
+  model$V <- with(schneider,
+                  matrix(stats::runif(nb_b * nb_n, 1, 2), nrow = nb_n, ncol = nb_b))
+  model$V <- sweep(x = model$V, MARGIN = 2, FUN = "/", colSums(model$V))
+
+  # growth rate of plant species !!!!!!!!!!! temperature independant right now !!!!!!!!!!!!!!!
+  model$r <- with(schneider, BM[1:nb_b]^-0.25)
+
+
+  return(model)
+}
+
+
 #' @title Default parameters for the scaled version of ATN as in Delmas et al.
 #'   2016
 #'
@@ -209,7 +365,6 @@ initialise_default_Scaled <- function(model) {
 }
 
 
-
 #' @title Default parameters for the scaled version of ATN as in Binzer et al.
 #'   2016, with updates from Gauzens et al. 2020
 #'
@@ -232,13 +387,13 @@ initialise_default_Scaled <- function(model) {
 #'   parameters as in Delmas et al. (2017).
 #'   
 #' @examples
-#  library(ATNr)
-#  set.seed(123)
-#  masses <- runif(20, 10, 100) #body mass of species
-#  L <- create_Lmatrix(masses, 10, Ropt = 10)
-#  L[L > 0] <- 1
-#  mod <- create_model_Unscaled(20, 10, 3, masses, L)
-#  mod <- initialise_default_Unscaled(mod)
+#' library(ATNr)
+#' set.seed(123)
+#' masses <- runif(20, 10, 100) #body mass of species
+#' L <- create_Lmatrix(masses, 10, Ropt = 10)
+#' L[L > 0] <- 1
+#' mod <- create_model_Unscaled(20, 10, 3, masses, L)
+#' mod <- initialise_default_Unscaled(mod)
 
 initialise_default_Unscaled <- function(model, temperature = 20){
   k <- 8.6173324e-5
