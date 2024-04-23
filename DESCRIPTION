@@ -11,9 +11,9 @@ Imports: Rcpp (>= 1.0.7), methods, stats, utils, deSolve, R.rsp
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.3.1
 LazyData: true
+Encoding: UTF-8
 Depends: 
     R (>= 2.14)
-Encoding: UTF-8
 Suggests: 
     rmarkdown,
     knitr,

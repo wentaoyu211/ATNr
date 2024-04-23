@@ -98,17 +98,17 @@ public:
       r.zeros(nb_b);
       S.zeros(nb_n);
       G.zeros(nb_b);
-	    G_faci.zeros(nb_b);
+	  G_faci.zeros(nb_b);
       dB.zeros(n_tot);
       uptake.zeros(nb_b);
-	    theta_bioms.zeros(nb_b);
+	  theta_bioms.zeros(nb_b);
       BM.ones(nb_b);
 
 
       // initialise matrices
       K.zeros(nb_n, nb_b);
       V.zeros(nb_n, nb_b);
-	    faci.zeros(nb_b, nb_b);
+	  faci.zeros(nb_b, nb_b);
 
       // scalars
       D = 0.0;
@@ -123,13 +123,19 @@ public:
       nut = linspace<uvec>(0, nb_n-1, nb_n);
       //non_nut = linspace<uvec>(nb_n, n_tot-1, nb_s);
     }
+// the following 5 lines are for error detection
+//template<typename T>
+//T mod(T a, int n)
+//{
+//    return a - floor(a/n)*n;
+//} 
+// ----
 
-template<typename T>
-T mod(T a, int n)
-{
-    return a - floor(a/n)*n;
-} 
+  void initialisations(){
 
+  }
+   
+   
   void print(){
     Rcpp::Rcout << "nb_n:"  << std::endl << nb_n << std::endl;
     Rcpp::Rcout << "nb_b:"  << std::endl << nb_b << std::endl; 
@@ -163,7 +169,7 @@ T mod(T a, int n)
 	//bioms_non_nut = bioms.elem(non_nut);
     //pow_bioms.each_col() = bioms_non_nut;
     //pow_bioms = pow(pow_bioms.each_row(), q.t());
-	  theta_bioms = pow(bioms(plants), theta);
+	 theta_bioms = pow(bioms(plants), theta);
 
     // calculate values for feeding rates
     // F contains first the upper part of the feeding rates
@@ -233,7 +239,7 @@ RCPP_MODULE(Unscaled_nuts_plantModule){
     .constructor<int, int>("constructor") //constructor
     .method("print", &Unscaled_nuts_plant::print)
     .method("ODE", &Unscaled_nuts_plant::ODE)
-   // .method("initialisations", &Unscaled_nuts_plant::initialisations)
+    .method("initialisations", &Unscaled_nuts_plant::initialisations)
     .field("nb_b", &Unscaled_nuts_plant::nb_b)
     .field("nb_n", &Unscaled_nuts_plant::nb_n)
     .field("BM", &Unscaled_nuts_plant::BM)

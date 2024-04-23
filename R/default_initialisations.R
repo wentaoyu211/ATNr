@@ -268,10 +268,7 @@ initialise_default_Unscaled_nuts_plant <- function(
   model$r <- with(schneider, BM[1 : nb_b] ^ -0.25 * exp(-0.22 * (T0 - T.K) / (k * T.K * T0)))
   # per gram metabolic rate
   model$X <- with(schneider,
-                  c(rep(x_P, nb_b), rep(x_A, nb_s - nb_b)) *
-                    BM^-0.25 * exp(-0.69 * (T0 - T.K) / (k * T.K * T0)))
-
-  model$X <- c(rep(0.141, model$nb_b)) * model$BM^-0.25
+                  c(rep(x_P, nb_b)) * BM^-0.25 * exp(-0.69 * (T0 - T.K) / (k * T.K * T0)))
 
   # plant stoichiometry (relative content in  the nutrients) !!!!!!!!!! to update. here assume 2 nutrients only !!!!!!!
   model$V <- with(schneider,
