@@ -35,7 +35,7 @@ run_checks <- function(model, verbose = TRUE) {
     })
     if (verbose) message("All checks successfull")
   }
-  else if (class(model)[1] == "Rcpp_Unscaled_nuts" | class(model)[1] == "Rcpp_Unscaled_faci") {
+  else if (class(model)[1] == "Rcpp_Unscaled_nuts" | class(model)[1] == "Rcpp_Unscaled_nuts_faci") {
     with(model, {
       if (any(dim(K) != c(nb_n, nb_b))) stop(" vector of plant half saturation densities ($K2) mispecified")
       else if (length(e) != nb_s) stop(" vector of assimilation efficiencies ($e) mispecified")
